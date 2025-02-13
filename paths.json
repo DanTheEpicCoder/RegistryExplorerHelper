@@ -1,3 +1,6 @@
 {
-	"recentdocs": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecenDocs"
+	"recentdocs": "NTUSER.DAT\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+	"bagmru": "NTUSER.DAT\\Software\\Microsoft\\Windows\\Shell\\BagMRU",
+	"bags": "NTUSER.DAT\\Software\\Microsoft\\Windows\\Shells\\Bags",
+	"bags": "USRCLASS.DAT\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags"
 }

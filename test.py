@@ -1,7 +1,3 @@
-# registry_paths = {
-#     "RecentDocs": r"Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs"
-# }
-
 import json
 
 def load_path(filename):
@@ -14,6 +10,7 @@ def get_registry_path(key):
 
 
 if __name__ == "__main__":
+  hive = input("Enter loaded hive: "
   registry_paths = load_path('paths.json')
   key = input("Enter the registry key: ")
   full_path = get_registry_path(key)
