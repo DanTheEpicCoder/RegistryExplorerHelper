@@ -1,0 +1,7 @@
+[
+    { "key_name": "recentdocs", "hive": "NTUSER.DAT", "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs" },
+    { "key_name": "bagmru", "hive": "NTUSER.DAT", "path": "Software\\Microsoft\\Windows\\Shell\\BagMRU" },
+    { "key_name": "bags", "hive": "NTUSER.DAT", "path": "Software\\Microsoft\\Windows\\Shell\\Bags" },
+    { "key_name": "bags", "hive": "USRCLASS.DAT", "path": "Local Settings\\Software\\Microsoft\\Windows\\Shell\\Bags" }
+]
+
