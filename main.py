@@ -1,40 +1,48 @@
 import sqlite3
-import os
-from registry_init import initialize_database  # Import the database setup function
+import tkinter as tk
+from tkinter import ttk
 
 DB_FILE = "registry_paths.db"
 
-# Ensure database is initialized before querying
-if not os.path.exists(DB_FILE):
-  print("[!] Database not found. Initializing now...")
-  initialize_database()
+def find_paths_by_key(event=None):
+  key = entry.get().strip().lower()
+  result_text.delete(1.0, tk.END)  # Clear previous output
+  entry.delete(0,tk.END)
 
-def find_paths_by_key(key):
-  """Queries the database for a given registry key and prints matching paths."""
+  if not key:
+    result_text.insert(tk.END, "Please enter a key.\n")
+    return
+
   conn = sqlite3.connect(DB_FILE)
   cursor = conn.cursor()
-
-  cursor.execute("""
-    SELECT hive, path FROM registry_paths
-    WHERE key_name = ?
-  """, (key.lower(),))
-
+  cursor.execute("SELECT hive, path FROM registry_paths WHERE key_name = ?", (key,))
   results = cursor.fetchall()
   conn.close()
 
   if results:
-    print(f"\n[+] Found {len(results)} match(es) for '{key}':")
+    result_text.insert(tk.END, f"Matches for '{key}':\n")
     for hive, path in results:
-      print(f"  {hive}: {path}")
+      result_text.insert(tk.END, f"  {hive}: {path}\n")
   else:
-    print(f"\n[-] No matches found for '{key}'")
+    result_text.insert(tk.END, f"No matches found for '{key}'.\n")
 
-# Main loop for user input
-while True:
-  user_input = input("\nEnter a registry key (or type 'exit' to quit): ").strip().lower()
+# Set up the GUI
+root = tk.Tk()
+root.title("Registry Path Finder")
 
-  if user_input == "exit":
-    print("Goodbye!")
-    break
+frame = ttk.Frame(root, padding=10)
+frame.grid(row=0, column=0)
 
-  find_paths_by_key(user_input)
+ttk.Label(frame, text="Enter Registry Key:").grid(row=0, column=0)
+entry = ttk.Entry(frame, width=30)
+entry.grid(row=0, column=1)
+entry.bind("<Return>", find_paths_by_key)
+
+search_button = ttk.Button(frame, text="Search", command=find_paths_by_key)
+search_button.grid(row=0, column=2)
+
+result_text = tk.Text(root, height=10, width=80)
+result_text.grid(row=1, column=0, padx=50, pady=50)
+
+root.mainloop()
+

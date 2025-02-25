@@ -9,3 +9,9 @@ Windows Registry Explorer Helper
 - multiple json files?
 - how to handle duplicate key name
 - USE SQLITE
+
+##Week 6
+* Got GUI and sqlite working
+
+#Features
+- browseable list of all of the paths
