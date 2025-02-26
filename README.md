@@ -10,9 +10,14 @@ Windows Registry Explorer Helper
 - how to handle duplicate key name
 - USE SQLITE
 
-##Week 6
+## Week 6
 * Got GUI and sqlite working
 
-#Features
+## Week 7 Goals
+* Add ~40 paths
+* Store recently used and display in gui (last 5 used)
+* 
+
+# Features
 - browseable list of all of the paths
 - Be able to add paths from the GUI
