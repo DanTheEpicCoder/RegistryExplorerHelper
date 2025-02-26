@@ -15,3 +15,4 @@ Windows Registry Explorer Helper
 
 #Features
 - browseable list of all of the paths
+- Be able to add paths from the GUI

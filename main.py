@@ -13,6 +13,7 @@ def find_paths_by_key(event=None):
     result_text.insert(tk.END, "Please enter a key.\n")
     return
 
+  # Connect to db and retrieve data
   conn = sqlite3.connect(DB_FILE)
   cursor = conn.cursor()
   cursor.execute("SELECT hive, path FROM registry_paths WHERE key_name = ?", (key,))

@@ -5,13 +5,13 @@ import json
 DB_FILE = "registry_paths.db"
 DATA_FILE = "registry_data.json"
 
+# Loads regisrtry paths from JSON file
 def load_registry_data():
-  """Loads registry paths from a JSON file."""
   with open(DATA_FILE, "r") as f:
     return json.load(f)
 
+# Creates database and populates if it doesn't exist
 def initialize_database():
-  """Creates the database and populates it if it doesn't exist."""
   if not os.path.exists(DB_FILE):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
