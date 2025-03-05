@@ -16,8 +16,12 @@ Windows Registry Explorer Helper
 ## Week 7 Goals
 * Add ~40 paths
 * Store recently used and display in gui (last 5 used)
-* 
 
+## Week 7 Notes
+* When adding new paths you have to delete the .db file and then run the registry init file to create the database again
+* This should be better optimized
 # Features
 - browseable list of all of the paths
 - Be able to add paths from the GUI
+- host website to people dont have to download the tool 
+- Also have paths to load hives into Registry Explorer
