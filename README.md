@@ -25,3 +25,8 @@ Windows Registry Explorer Helper
 - Be able to add paths from the GUI
 - host website to people dont have to download the tool 
 - Also have paths to load hives into Registry Explorer
+
+## Week 11
+* added browseable list, add path from gui, and descriptions
+* want to add agrument to select .db file but could be weird becuase on windows its not run from the terminal
+* still need to add more paths and look into automation 
