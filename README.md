@@ -29,4 +29,11 @@ Windows Registry Explorer Helper
 ## Week 11
 * added browseable list, add path from gui, and descriptions
 * want to add agrument to select .db file but could be weird becuase on windows its not run from the terminal
+* have default db file but option to use ur own
 * still need to add more paths and look into automation 
+* maybe add delete paths
+
+# Instructions
+* Download files from github
+* Install python
+* Double click executable

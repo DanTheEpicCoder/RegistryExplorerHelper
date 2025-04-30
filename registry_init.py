@@ -1,18 +1,17 @@
 import sqlite3
 import os
 import json
+import argparse
+import sys
 
-DB_FILE = "registry_paths.db"
-DATA_FILE = "registry_data.json"
-
-# Load registry paths from JSON file
-def load_registry_data():
-    if not os.path.exists(DATA_FILE):
-        print(f"[-] Error: '{DATA_FILE}' not found. Ensure the file exists before running this script.")
+def load_registry_data(data_file):
+    """Load registry paths from the specified JSON file"""
+    if not os.path.exists(data_file):
+        print(f"[-] Error: '{data_file}' not found. Ensure the file exists before running this script.")
         return []
     
     try:
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
+        with open(data_file, "r", encoding="utf-8") as f:
             data = json.load(f)
             if not isinstance(data, list):
                 print("[-] Error: JSON file should contain a list of registry entries.")
@@ -22,11 +21,11 @@ def load_registry_data():
         print(f"[-] Error: Failed to parse JSON file - {e}")
         return []
 
-# Creates database and populates if empty
-def initialize_database():
-    conn = sqlite3.connect(DB_FILE)
+def initialize_database(db_file, data_file):
+    """Create and initialize the database with data from the JSON file"""
+    conn = sqlite3.connect(db_file)
     cursor = conn.cursor()
-
+    
     # Create table if it doesn't exist
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS registry_paths (
@@ -37,27 +36,75 @@ def initialize_database():
             description TEXT
         )
     """)
-
+    
     # Check if database is already populated
     cursor.execute("SELECT COUNT(*) FROM registry_paths")
     count = cursor.fetchone()[0]
-
+    
     if count == 0:
-        registry_data = load_registry_data()
+        registry_data = load_registry_data(data_file)
         if registry_data:
-            cursor.executemany("""
-                INSERT INTO registry_paths (key_name, hive, path, description) 
-                VALUES (:key_name, :hive, :path, :description)
-            """, registry_data)
-            conn.commit()
-            print("[+] Database initialized and populated.")
+            try:
+                cursor.executemany("""
+                    INSERT INTO registry_paths (key_name, hive, path, description) 
+                    VALUES (:key_name, :hive, :path, :description)
+                """, registry_data)
+                conn.commit()
+                print(f"[+] Database '{db_file}' initialized and populated with data from '{data_file}'.")
+                print(f"[+] Added {len(registry_data)} registry path entries.")
+            except sqlite3.Error as e:
+                print(f"[-] SQLite error: {e}")
+                conn.rollback()
         else:
             print("[-] No data inserted due to errors in JSON file.")
     else:
-        print("[+] Database already exists and contains data.")
-
+        print(f"[+] Database '{db_file}' already exists and contains {count} entries.")
+    
     conn.close()
 
-# Run initialization
-initialize_database()
+def get_command_line_args():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(description='Initialize a registry paths database from a JSON file.')
+    parser.add_argument('-j', '--json', dest='json_file', required=True,
+                        help='Path to the JSON file containing registry data')
+    parser.add_argument('-d', '--db', dest='db_file', required=True,
+                        help='Path for the output SQLite database file')
+    return parser.parse_args()
 
+def get_user_input():
+    """Get file paths from user input"""
+    print("Registry Paths Database Initializer")
+    print("==================================")
+    
+    json_file = input("Enter path to JSON data file: ")
+    while not json_file or not os.path.exists(json_file):
+        print(f"[-] Error: File '{json_file}' not found.")
+        json_file = input("Enter path to JSON data file (or 'exit' to quit): ")
+        if json_file.lower() == 'exit':
+            sys.exit(0)
+    
+    db_file = input("Enter name for the database file: ")
+    while not db_file:
+        db_file = input("Enter name for the database file: ")
+    
+    # Add .db extension if not provided
+    if not db_file.endswith('.db'):
+        db_file += '.db'
+    
+    return json_file, db_file
+
+def main():
+    # Try to get arguments from command line
+    try:
+        args = get_command_line_args()
+        json_file = args.json_file
+        db_file = args.db_file
+    # If no command line args or parsing fails, get input interactively
+    except (argparse.ArgumentError, SystemExit):
+        json_file, db_file = get_user_input()
+    
+    # Initialize the database
+    initialize_database(db_file, json_file)
+
+if __name__ == "__main__":
+    main()
