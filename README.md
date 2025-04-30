@@ -1,39 +1,8 @@
-# Daniel Gaskill Spring 2025 Capstone Project
-Windows Registry Explorer Helper
+# Daniel Gaskills Windows Registry Explorer Path Finder
+I created this program to be a helpful tool when conducting a forensic analysis using Eric Zimmermans Windows Registry Explorer. My tool is a fast way to look up the path to a registry key without having to use the internet. Currently it is only applicable for Windows 10. The tool uses SQLite to store keys and paths. You have the option to use my default .db file, which comes with about 20 paths. You can also give it your own .db file if you have one already, or you can use my script which will take a json file and create a .db file for you. Just make sure you follow the correct format that it accepts. Here is an example line:
+```
+{ "key_name": "recentdocs", "hive": "NTUSER.DAT", "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs", "description": "Recently accessed folders, executables, documents, pluggable devices, etc." },
+```
+You will need to have python installed on your windows 10 machine which can be a little tricky so I will include a link to a [youtube video](https://www.youtube.com/watch?v=IPOr0ran2Oo)
 
-## Week 3 Goals
-* Show proof of concept of script that interacts with windows explorer tool
-* Get python environment on windows machine
-
-## Notes
-- multiple json files?
-- how to handle duplicate key name
-- USE SQLITE
-
-## Week 6
-* Got GUI and sqlite working
-
-## Week 7 Goals
-* Add ~40 paths
-* Store recently used and display in gui (last 5 used)
-
-## Week 7 Notes
-* When adding new paths you have to delete the .db file and then run the registry init file to create the database again
-* This should be better optimized
-# Features
-- browseable list of all of the paths
-- Be able to add paths from the GUI
-- host website to people dont have to download the tool 
-- Also have paths to load hives into Registry Explorer
-
-## Week 11
-* added browseable list, add path from gui, and descriptions
-* want to add agrument to select .db file but could be weird becuase on windows its not run from the terminal
-* have default db file but option to use ur own
-* still need to add more paths and look into automation 
-* maybe add delete paths
-
-# Instructions
-* Download files from github
-* Install python
-* Double click executable
+Once you have python installed you can just download the zipfile, extract it and double click on main.py and your GUI will open up. Also if you want to create your own .db file just double click NAMEOFFILE and you will be prompted with directions. Just remember you need a json file on hand.

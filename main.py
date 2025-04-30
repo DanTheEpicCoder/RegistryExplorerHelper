@@ -3,11 +3,11 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 # Define theme colors
-DARK_BG = "#1a1a1a"           # Dark background
+DARK_BG = "#262626"           # Dark background
 FOREST_GREEN = "#2c5f2d"      # Forest green for accents
 LIGHT_GREEN = "#97bc62"       # Light accent color
 TEXT_COLOR = "#e0e0e0"        # Light text for dark backgrounds
-HIGHLIGHT = "#408040"         # Highlight green
+HIGHLIGHT = "#66bb6a"         # Highlight green
 
 DB_FILE = "registry_paths.db"  # Default
 def initialize_database():
@@ -39,7 +39,6 @@ def find_paths_by_key(event=None):
         result_text.insert(tk.END, "Please enter a key.\n")
         return
 
-    # Connect to db and retrieve data
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     cursor.execute("SELECT hive, path, description FROM registry_paths WHERE key_name = ?", (key,))
@@ -55,7 +54,6 @@ def find_paths_by_key(event=None):
             if description:
                 result_text.insert(tk.END, f"   {description}\n", "italic")
 
-        # Store recent queries
         recent_queries.insert(0, (key, results))
         if len(recent_queries) > 10:
             recent_queries.pop()
@@ -74,7 +72,7 @@ def update_recent_queries():
             recent_text.insert(tk.END, f": {path}\n")
 
 def load_all_paths():
-    tree.delete(*tree.get_children())  # Clear previous entries
+    tree.delete(*tree.get_children())
 
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -123,13 +121,9 @@ def select_database():
         messagebox.showinfo("Database Selected", f"Using database:\n{file_path}")
 
 def apply_theme(root):
-    """Apply the forest green theme to all widgets"""
     style = ttk.Style()
-    
-    # Configure the main theme
-    style.theme_use('clam')  # Using clam as base theme
-    
-    # Configure colors for ttk widgets
+    style.theme_use('clam')
+
     style.configure('TFrame', background=DARK_BG)
     style.configure('TLabel', background=DARK_BG, foreground=TEXT_COLOR)
     style.configure('TButton', background=FOREST_GREEN, foreground=TEXT_COLOR)
@@ -137,16 +131,14 @@ def apply_theme(root):
               background=[('active', HIGHLIGHT), ('pressed', LIGHT_GREEN)],
               foreground=[('active', TEXT_COLOR), ('pressed', DARK_BG)])
     style.configure('TEntry', fieldbackground=DARK_BG, foreground=TEXT_COLOR, insertcolor=TEXT_COLOR)
-    
-    # Configure Notebook style
+
     style.configure('TNotebook', background=DARK_BG, tabmargins=[2, 5, 2, 0])
     style.configure('TNotebook.Tab', background=FOREST_GREEN, foreground=TEXT_COLOR, 
                    padding=[30, 5], focuscolor=FOREST_GREEN)
     style.map('TNotebook.Tab', 
               background=[('selected', HIGHLIGHT), ('active', LIGHT_GREEN)],
               foreground=[('selected', TEXT_COLOR), ('active', DARK_BG)])
-    
-    # Configure Treeview
+
     style.configure('Treeview', 
                    background=DARK_BG, 
                    foreground=TEXT_COLOR,
@@ -154,44 +146,72 @@ def apply_theme(root):
     style.map('Treeview', 
              background=[('selected', FOREST_GREEN)],
              foreground=[('selected', TEXT_COLOR)])
-    
-    # Configure scrollbars
+
     style.configure('Vertical.TScrollbar', background=FOREST_GREEN, troughcolor=DARK_BG, 
                    arrowcolor=TEXT_COLOR)
     style.configure('Horizontal.TScrollbar', background=FOREST_GREEN, troughcolor=DARK_BG,
                    arrowcolor=TEXT_COLOR)
-    
-    # Apply theme to root window
+
     root.configure(bg=DARK_BG)
-    
-    # Apply theme to standard tkinter widgets that don't use ttk styling
     root.option_add('*Text.background', DARK_BG)
     root.option_add('*Text.foreground', TEXT_COLOR)
-    root.option_add('*Text.insertBackground', TEXT_COLOR)  # cursor color
-    
+    root.option_add('*Text.insertBackground', TEXT_COLOR)
+
     return style
 
-# Set up the GUI
+def on_row_double_click(event):
+    selected_item = tree.focus()
+    if not selected_item:
+        return
+    values = tree.item(selected_item, 'values')
+    if len(values) != 3:
+        return
+
+    key_name, hive, path = values
+
+    # Fetch description from DB
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT description FROM registry_paths
+        WHERE key_name = ? AND hive = ? AND path = ?
+        LIMIT 1
+    """, (key_name, hive, path))
+    result = cursor.fetchone()
+    conn.close()
+
+    description = result[0] if result else ""
+
+    # Switch to Add tab
+    notebook.select(add_frame)
+
+    # Fill form fields
+    key_entry.delete(0, tk.END)
+    key_entry.insert(0, key_name)
+    hive_entry.delete(0, tk.END)
+    hive_entry.insert(0, hive)
+    path_entry.delete(0, tk.END)
+    path_entry.insert(0, path)
+    description_entry.delete(0, tk.END)
+    description_entry.insert(0, description)
+
 root = tk.Tk()
 root.title("Registry Path Finder")
 root.geometry("900x700")
 root.rowconfigure(1, weight=1)
 root.columnconfigure(0, weight=1)
 
-# Apply theme to the application
 style = apply_theme(root)
 
-button_frame = ttk.Frame(root)
-button_frame.grid(row=0, column=0, sticky="w", padx=10, pady=(10, 0))
+button_frame = ttk.Frame(root, padding=10)
+button_frame.grid(row=0, column=0, sticky="w")
 
 select_db_button = ttk.Button(button_frame, text="Select Database", command=select_database)
 select_db_button.pack(side="left", padx=5)
 
-# Create notebook widget
 notebook = ttk.Notebook(root)
 notebook.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
 
-# --- Search Tab ---
 search_frame = ttk.Frame(notebook, padding=10)
 notebook.add(search_frame, text="Search")
 search_frame.columnconfigure(1, weight=1)
@@ -204,12 +224,12 @@ entry.bind("<Return>", find_paths_by_key)
 search_button = ttk.Button(search_frame, text="Search", command=find_paths_by_key)
 search_button.grid(row=0, column=2, padx=5)
 
-result_text = tk.Text(search_frame, height=8, font=my_font, bg=DARK_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR)
+result_text = tk.Text(search_frame, height=8, font=my_font, bg=DARK_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, padx=10, pady=10)
 result_text.grid(row=1, column=0, columnspan=3, padx=5, pady=10, sticky="nsew")
 result_text.tag_configure("bold", font=("Georgia", 12, "bold"), foreground=LIGHT_GREEN)
-result_text.tag_configure("italic", font=("Georgia", 12, "italic"), foreground=LIGHT_GREEN)
+result_text.tag_configure("italic", font=("Georgia", 12, "italic"), foreground=TEXT_COLOR)
 
-recent_text = tk.Text(search_frame, height=10, font=my_font, bg=DARK_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR)
+recent_text = tk.Text(search_frame, height=10, font=my_font, bg=DARK_BG, fg=TEXT_COLOR, insertbackground=TEXT_COLOR, padx=10, pady=10)
 recent_text.grid(row=2, column=0, columnspan=3, padx=5, pady=10, sticky="nsew")
 recent_text.insert(tk.END, "Recently Used:\n")
 recent_text.tag_configure("bold", font=("Georgia", 12, "bold"), foreground=LIGHT_GREEN)
@@ -217,43 +237,35 @@ recent_text.tag_configure("bold", font=("Georgia", 12, "bold"), foreground=LIGHT
 search_frame.rowconfigure(1, weight=1)
 search_frame.rowconfigure(2, weight=1)
 
-# --- Browse Tab ---
 browse_frame = ttk.Frame(notebook, padding=10)
 notebook.add(browse_frame, text="Browse All")
 browse_frame.rowconfigure(0, weight=1)
 browse_frame.columnconfigure(0, weight=1)
 
-# Create a frame to hold the treeview and both scrollbars
 tree_frame = ttk.Frame(browse_frame)
 tree_frame.grid(row=0, column=0, sticky="nsew")
 tree_frame.rowconfigure(0, weight=1)
 tree_frame.columnconfigure(0, weight=1)
 
-# Create the treeview with appropriate column widths
 tree = ttk.Treeview(tree_frame, columns=("Key", "Hive", "Path"), show="headings")
 tree.heading("Key", text="Registry Key")
 tree.heading("Hive", text="Hive")
 tree.heading("Path", text="Path")
-
-# Set column widths - making Key and Hive smaller to give more space to Path
 tree.column("Key", width=120, minwidth=80)
 tree.column("Hive", width=80, minwidth=60)
 tree.column("Path", width=500, minwidth=200)
 
-# Vertical scrollbar
 v_scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=tree.yview)
 tree.configure(yscroll=v_scrollbar.set)
 
-# Horizontal scrollbar
 h_scrollbar = ttk.Scrollbar(tree_frame, orient="horizontal", command=tree.xview)
 tree.configure(xscroll=h_scrollbar.set)
 
-# Place the treeview and scrollbars in the grid
 tree.grid(row=0, column=0, sticky="nsew")
+tree.bind("<Double-1>", on_row_double_click)
 v_scrollbar.grid(row=0, column=1, sticky="ns")
 h_scrollbar.grid(row=1, column=0, sticky="ew")
 
-# --- Add Path Tab ---
 add_frame = ttk.Frame(notebook, padding=10)
 notebook.add(add_frame, text="Add Path")
 

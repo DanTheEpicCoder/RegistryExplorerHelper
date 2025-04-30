@@ -1,7 +1,6 @@
 import sqlite3
 import os
 import json
-import argparse
 import sys
 
 def load_registry_data(data_file):
@@ -62,15 +61,6 @@ def initialize_database(db_file, data_file):
     
     conn.close()
 
-def get_command_line_args():
-    """Parse command line arguments"""
-    parser = argparse.ArgumentParser(description='Initialize a registry paths database from a JSON file.')
-    parser.add_argument('-j', '--json', dest='json_file', required=True,
-                        help='Path to the JSON file containing registry data')
-    parser.add_argument('-d', '--db', dest='db_file', required=True,
-                        help='Path for the output SQLite database file')
-    return parser.parse_args()
-
 def get_user_input():
     """Get file paths from user input"""
     print("Registry Paths Database Initializer")
@@ -94,14 +84,8 @@ def get_user_input():
     return json_file, db_file
 
 def main():
-    # Try to get arguments from command line
-    try:
-        args = get_command_line_args()
-        json_file = args.json_file
-        db_file = args.db_file
-    # If no command line args or parsing fails, get input interactively
-    except (argparse.ArgumentError, SystemExit):
-        json_file, db_file = get_user_input()
+    # Get input interactively
+    json_file, db_file = get_user_input()
     
     # Initialize the database
     initialize_database(db_file, json_file)
